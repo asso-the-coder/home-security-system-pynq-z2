@@ -3,6 +3,7 @@
 #include "xgpio.h"
 #include "xparameters.h"
 #include "../include/radar_task.h"
+#include <timers.h>
 
 static TaskHandle_t xRadarTask;
 static XGpio radar_trig_pin; 
@@ -12,28 +13,52 @@ void prvRadarTask(){
 
     u32 raw_reading;
     u8 result;
-    u32 output_value = ~6; 
-    
 
     const TickType_t x1second = pdMS_TO_TICKS( DELAY_1_SECOND );
-
-    //XGpio_DiscreteWrite(&radar_trig_pin, OUTPUTS_CH, TRIG_WRITE_MASK);
-
-
+    const TickType_t x10us = pdMS_TO_TICKS( DELAY_10US );
     init_radar_gpio();
 
-    XGpio_DiscreteWrite(&radar_echo_pin, INPUTS_CH, 0x1F);
+    TickType_t startTick, endTick;
+    int pulse = 0;
 
-    xil_printf("Reading...");
+    int distance;
+
+    
+
+    xil_printf("Reading...\r\n");
+
+    XGpio_DiscreteWrite(&radar_trig_pin, OUTPUTS_CH, TRIG_WRITE_MASK);
+    vTaskDelay( x10us );
+    XGpio_DiscreteWrite(&radar_trig_pin, OUTPUTS_CH, 0x0);
+
     for (;;){
-        vTaskDelay( x1second );
+        //vTaskDelay( x1second );
+                
+        raw_reading = XGpio_DiscreteRead(&radar_echo_pin, INPUTS_CH);
+        result = (raw_reading >> ECHO_READ_MASK) & 0x01; //only one bit is needed
+
+        if (pulse == 0){
+            if (result == 1){
+                startTick = xTaskGetTickCount();
+                pulse = 1;
+                //xil_printf("Radar Sensor State is: %d\r\n", result);
+            }
+        }
+        else{
+            if (result == 0){
+                endTick = xTaskGetTickCount();
+            }
+            xil_printf("%d ticks", endTick - startTick);
+            distance = ((endTick - startTick) / 100) / 58;
+            xil_printf("%d cm", distance);
+
+            vTaskDelete(xRadarTask);
+        }
         
-        //raw_reading = XGpio_DiscreteRead(&radar_echo_pin, INPUTS_CH);
-        //result = (raw_reading >> 0x00) & 0x01; //only one bit is needed
         
-        //xil_printf("Radar Sensor State is: %d\r\n", result);
+        //need to resolve the issue of control loop not catching all the pulses
         
-        
+
     }     
 
 }
@@ -49,8 +74,8 @@ int init_radar_gpio(){
         return XST_FAILURE;
     }    
        
-    XGpio_SetDataDirection(&radar_echo_pin, INPUTS_CH, 0x0); 
-    //XGpio_SetDataDirection(&radar_trig_pin, OUTPUTS_CH, 0xFFFFFFFF);  
+    XGpio_SetDataDirection(&radar_echo_pin, INPUTS_CH, 0xFFFFFFF); 
+    XGpio_SetDataDirection(&radar_trig_pin, OUTPUTS_CH, 0x0);  
 
     return XST_SUCCESS;
 }

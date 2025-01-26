@@ -11,7 +11,7 @@ static void prvMotionSensorTask(){
     
     u32 raw_reading;
     u8 result;
-    const TickType_t x1second = pdMS_TO_TICKS( DELAY_1_SECOND );
+    const TickType_t x1second = pdMS_TO_TICKS( DELAY_1_SECOND );    
 
     init_motion_sensor_gpio();
 

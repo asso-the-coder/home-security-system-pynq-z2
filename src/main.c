@@ -41,8 +41,8 @@ int main (int argc, char *argv[]){
 
     xil_printf("Home Security System Initalized.\r\n");
 
-    createMotionSensorTask(tskIDLE_PRIORITY + 1);
-    //createRadarTask(tskIDLE_PRIORITY);    
+    //createMotionSensorTask(tskIDLE_PRIORITY);
+    createRadarTask(tskIDLE_PRIORITY + 1);    
     
     vTaskStartScheduler();
     

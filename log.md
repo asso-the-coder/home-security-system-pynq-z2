@@ -10,7 +10,7 @@
 | 15/1/2025   | Verifying doppler effect sensor using Pynq-Z2 pins                        |
 | 23/1/2025   | Full FreeRTOS implementation of doppler effect sensor reading             |
 | 24/1/2025   | Cleaning up codebase with encapsulation                                   |
-| 25/1/2025   | Queueing in between sensor tasks and adding RPi SPI + Eth                 |
+| 25/1/2025   | Finished platform upgrade + working on distance sensor processing         |
 Detailed Log Notes:
 
 8/1/2025
