@@ -30,7 +30,7 @@ int init_motion_sensor_gpio(){
     int pin_status = XGpio_Initialize(&motion_sensor_pin, GPIO_DEVICE_ID);
     
     if (pin_status != XST_SUCCESS) {
-        xil_printf("Motion Sensor GPIO Initialization Failed\r\n");
+        xil_printf("Motion Sensor GPIO Initialization Failed!\r\n");
         return XST_FAILURE;
     }    
     
