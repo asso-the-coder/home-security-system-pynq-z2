@@ -1,5 +1,5 @@
 # home-security-system
-Makeshift security system using various sensors, a PYNQ-Z2 for processing, &amp; a Raspberry Pi as the home PC
+Makeshift security system using various sensors and a PYNQ-Z2 SOC for processing.
 
 Using the following sensors (adding more as the project expands):
 - HC-SR04 Ultrasonic Distance Sensor
