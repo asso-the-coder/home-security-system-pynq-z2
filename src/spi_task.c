@@ -7,12 +7,10 @@
 
 extern QueueHandle_t xRadarToSPIQueue;
 
-#define SPI_DEVICE_ID XPAR_AXI_SPI_BASE_ADDR
-#define SPI_SS 0
-
 static XSpiPs SpiInstance;
+static TaskHandle_t xSPITask;
 
-void vSPITask(void *pvParameters) {
+void prvSPITask() {
     int Status;
     XSpiPs_Config *SpiConfig;
 
@@ -20,13 +18,13 @@ void vSPITask(void *pvParameters) {
     SpiConfig = XSpiPs_LookupConfig(SPI_DEVICE_ID);
     if (SpiConfig == NULL) {
         xil_printf("SPI config lookup failed.\r\n");
-        vTaskDelete(NULL);
+        vTaskDelete(xSPITask);
     }
 
     Status = XSpiPs_CfgInitialize(&SpiInstance, SpiConfig, SpiConfig->BaseAddress);
     if (Status != XST_SUCCESS) {
         xil_printf("SPI init failed.\r\n");
-        vTaskDelete(NULL);
+        vTaskDelete(xSPITask);
     }
 
     XSpiPs_SetOptions(&SpiInstance, XSPIPS_MASTER_OPTION | XSPIPS_FORCE_SSELECT_OPTION);
@@ -51,4 +49,14 @@ void vSPITask(void *pvParameters) {
             }
         }
     }
+}
+
+
+void createRadarTask(UBaseType_t priority){
+    xTaskCreate( 	prvSPITask, 					/* The function that implements the task. */
+					( const char * ) "SPI", 		/* Text name for the task, provided to assist debugging only. */
+					configMINIMAL_STACK_SIZE, 	/* The stack allocated to the task. */
+					NULL, 						/* The task parameter is not used, so set to NULL. */
+					priority,			/* The task runs at the idle priority. */
+					&xSPITask );
 }
