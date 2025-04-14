@@ -4,10 +4,13 @@
 #include "xparameters.h"
 #include "../include/radar_task.h"
 #include <timers.h>
+#include "queue.h"
 
 static TaskHandle_t xRadarTask;
 static XGpio radar_trig_pin; 
 static XGpio radar_echo_pin;
+
+extern QueueHandle_t xRadarToSPIQueue;
 
 void prvRadarTask(){
 
@@ -88,4 +91,41 @@ void createRadarTask(UBaseType_t priority){
 					NULL, 						/* The task parameter is not used, so set to NULL. */
 					priority,			/* The task runs at the idle priority. */
 					&xRadarTask );
+}
+
+
+
+// with spi
+void vRadarTask(void *pvParameters) {
+    TickType_t startTick, endTick;
+    int pulse = 0;
+    uint8_t encoded_pulse = 0;
+
+    for (;;) {
+        int raw = XGpio_DiscreteRead(&radar_echo_pin, INPUTS_CH);
+        int echo = (raw >> 8) & 0x01;
+
+        if (pulse == 0 && echo == 1) {
+            startTick = xTaskGetTickCount();
+            pulse = 1;
+        }
+        else if (pulse == 1 && echo == 0) {
+            endTick = xTaskGetTickCount();
+            pulse = 0;
+
+            // Pulse width in ms
+            TickType_t pulseWidth = endTick - startTick;
+
+            // Encode to uint8_t
+            encoded_pulse = (pulseWidth > 255) ? 255 : (uint8_t)pulseWidth;
+
+            // Send to SPI task via queue
+            if (xQueueSend(xRadarToSPIQueue, &encoded_pulse, 0) == pdPASS) {
+                xil_printf("Radar task sent: %d\r\n", encoded_pulse);
+            }
+        }
+
+        // Short delay for stability
+        vTaskDelay(pdMS_TO_TICKS(5));
+    }
 }

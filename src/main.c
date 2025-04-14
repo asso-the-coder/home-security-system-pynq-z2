@@ -35,14 +35,18 @@ static TaskHandle_t xRadarSensorTask;
 static TaskHandle_t xRxTask;
 static QueueHandle_t xQueue = NULL;
 static TimerHandle_t xTimer = NULL;
+static QueueHandle_t xRadarToSPIQueue;
 
 
 int main (int argc, char *argv[]){
 
     xil_printf("Home Security System Initalized.\r\n");
 
-    //createMotionSensorTask(tskIDLE_PRIORITY);
-    createRadarTask(tskIDLE_PRIORITY + 1);    
+    xRadarToSPIQueue = xQueueCreate(10, sizeof(u8));
+
+    createMotionSensorTask(tskIDLE_PRIORITY);
+    createRadarTask(tskIDLE_PRIORITY + 1);
+    createSPITask(tskIDLE_PRIORITY + 2);    
     
     vTaskStartScheduler();
     
