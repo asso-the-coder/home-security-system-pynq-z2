@@ -1,7 +1,6 @@
 # home-security-system
 Makeshift security system using various sensors and a PYNQ-Z2 SOC for processing.
 
-![image](https://github.com/user-attachments/assets/f4ebc0af-5ba2-4854-ae38-d54083bd44df)
 ![image](https://github.com/user-attachments/assets/601cf5a0-55c1-4cf7-80f0-8cf9ace0953a)
 ![image](https://github.com/user-attachments/assets/7479b43f-8319-4b06-84bd-df36895edf34)
 
